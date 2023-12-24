@@ -42,7 +42,7 @@ This has the _launchSettings.json_ file, this defines the following
 
 - Settings corresponding to IIS and other Profiles
 - The profile can be selected using button in the toolbar
-  ![launchSettings.json](images\LaunchSettings.png)
+  ![launchSettings.json](./images/LaunchSettings.png)
 - The settings have details about
 
   - Port
@@ -54,7 +54,7 @@ This has the _launchSettings.json_ file, this defines the following
   This is the starting point, we can add services and configure the _request pipeline_
 
   Request pipeline takes care of how requests are handled by the service.
-  ![Program.cs](images/Programcs.PNG)
+  ![Program.cs](./images/Programcs.PNG)
 
   Service used by default for MVC projects are _AddControllerWithViews_
 
@@ -91,7 +91,7 @@ Note: Service is added to **builder** and **middleware** are added to applicatio
 - The sub-folder contains files of type `.cshtml`
 - In the controller, when an Action simply returns view without specifying the name, the name of the view (cshtml) file corresponding to the Action will be returned.
 - In the below example, when Index action is called, `Index.cshtml` will be returned and when privacy action is called `Privacy.cshtml` will be returned. But custom view names could also be passed, hence the name of files in View needn't always match the Action methods.
-  <br/> Example: ![ControllerWithDefaultViews](images/Controller.PNG)
+  <br/> Example: ![ControllerWithDefaultViews](./images/Controller.PNG)
 
 ### Shared Views
 
