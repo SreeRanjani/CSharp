@@ -42,7 +42,7 @@ This has the _launchSettings.json_ file, this defines the following
 
 - Settings corresponding to IIS and other Profiles
 - The profile can be selected using button in the toolbar
-  ![launchSettings.json](./Images/LaunchSettings.png)
+  ![launchSettings.json](./Images/launchSettings.png)
 - The settings have details about
 
   - Port
