@@ -22,6 +22,8 @@ Abbreviation for _Model-View-Controller_
 - Controller then uses model to get data from database and do other processes.
 - The data is then sent to the View where the HTML elements are updated and given to the controller.
 - The controller returns the HTML elements as response
+  ![MVC](./Images/MVC.PNG)
+  `Note: The above image is from course, hence needs to be updated for publishing in public sites`
 
 # Routing
 
