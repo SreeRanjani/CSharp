@@ -103,3 +103,7 @@ Note: Service is added to **builder** and **middleware** are added to applicatio
 
 - \_ViewStart.cshtml - Denotes what is the master page or default layout
 - \_ViewImports.cshtml - This contains the using statements that are common for all the views. This is like a global import file
+
+## wwwroot
+
+- Folder for all the static HTML, CSS, JS files
