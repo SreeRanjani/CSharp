@@ -47,6 +47,24 @@
   - Pass the connection string property as argument to this
     ![ProgramCSWithAppDBContext](./Images/ProgramCSWithDbContext.PNG)
 
+## Logging Queries
+
+- When adding DBContext in `Program.cs`, we can add an option to specify where the queries needs to get logged to, this can be done by adding the `LogTo(FunctionNameToLog)`<br\>
+  **Example:**
+
+```csharp
+  builder.services.AddDbContext<ApplicationDbContext>(
+    option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).LogTo(Console.WriteLine));
+```
+
+- We can filter the logs by passing the type and command name as below
+
+```csharp
+builder.Services.AddDbContext<ApplicationDbContext>(
+    option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .LogTo(Console.WriteLine, new[] {DbLoggerCategory.Database.Command.Name}, LogLevel.Information));
+```
+
 # Creating DB
 
 - After setting up the `ApplicationDBContext` and `Program.cs`, open `Package Manger Console(PM Console)` by using `Tools -> Package Manager Console` and run the command `update-database`
@@ -83,5 +101,127 @@ Example:
     DbSet<Category> Categories {get; set;};
 ```
 
-- After adding this, open the PM Console and add a migration using the command `add-migration {Name}`. This step will create a _Migration_ folder if not present and add the current migration with date time to this folder.
+- After adding this, open the PM Console and add a migration using the command `add-migration {Name}` Eg: `add-migration CreateCategoryTable`. This step will create a _Migration_ folder if not present and add the current migration with date time to this folder.
 - Then run the `update-database` command in the PM Console. This will apply the migration to database. Hence a table corresponding to the collection will be added to DB.
+
+## Seeding Table Data
+
+- For this `OnModelCreating` needs to be overridden in the `ApplicationDbContext`. This will has access to `ModelBuilder` using which we can seed data.
+  Syntax:
+
+```csharp
+   modelBuilder.Entity<ModelToAddData>().HasData( new ModelObjects)
+```
+
+Example
+
+```csharp
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Category>().HasData(
+            new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
+            new Category { Id = 2, Name = "Comedy", DisplayOrder = 2 },
+            new Category { Id = 3, Name = "Thriller", DisplayOrder = 3 });
+    }
+```
+
+# Accessing DB Data using Entity Core
+
+- Create an instance of the `ApplicationDbContext` that can be used to read and write data to DB
+
+  ```csharp
+    using (ApplicationDbContext context = new())
+  ```
+
+  ## Check if Database is Created and Migrations are Done
+
+  - Before performing any operations in DB, we can check if DB is created and migrations are done as below
+
+    ```csharp
+      using (ApplicationDbContext context = new())
+      {
+        context.Database.EnsureCreated();
+        if(context.Database.GetPendingMigrations().Count()>0)
+        {
+          context.Database.Migrate();
+        }
+      }
+    ```
+
+  ## Reading Data from DB
+
+  - We can directly use the appropriate table in DB and convert the value to list
+
+    ```csharp
+    using (ApplicationDbContext context = new())
+    {
+      IList<Category> = context.Categories.ToList();
+    }
+    ```
+
+  ## Reading Multiple data from DB
+
+  - We can directly use the appropriate table in DB and convert the value to list. <br/>
+    **Syntax:**
+
+    ```csharp
+      context.TableName.ToList();
+    ```
+
+    ```csharp
+    using (ApplicationDbContext context = new())
+    {
+      IList<Category> categories = context.Categories.ToList();
+    }
+    ```
+
+  ## Reading One data from DB
+
+  - We can directly use the appropriate table in DB and convert the value to list.
+  - We can use the following
+
+    - `First`: to read only the first value from DB, this will throw exception if no values are present in DB. It takes an ID argument, passing a number will match the DB record with ID matching the number.
+    - `FirstOrDefault`: to read the first value, if no data is found exception will not be thrown. This also takes an argument which matches the given condition.
+    - `Where`: We can filter a list of values that matches a certain criteria using `Where`.
+    - `Single`: takes a condition and returns the value matching the condition. Single expects only one value that matches the condition, if it finds 2 or more values, an error will be thrown
+    - `SingleOrDefault`: takes a condition and returns the value matching the condition. Works similar to single but doesn't throw error if no value is found.
+    - `Contains`: Return a value that is containing a given string.
+
+      **Syntax:**
+
+    ```csharp
+      context.TableName.First();
+      context.TableName.FirstOrDefault();
+      context.TableName.FirstOrDefault(u => u.Id == 10);
+      context.TableName.Where(u => u.Id == 10);
+      context.TableName.SingleOrDefault(u => u.Id == 10);
+    ```
+
+    ```csharp
+    using (ApplicationDbContext context = new())
+    {
+      Category category1 = context.Categories.First();
+      Category category2 = context.Categories.FirstOrDefault();
+      List<Category> categories = context.Categories.Where(category => category.Id == 10);
+    }
+    ```
+
+## Creating Data in DB
+
+- Create the new item, during this we have to skip giving value to ID column. We can add it to the table and save the changes to DB. <br/>
+  **Syntax:**
+
+  ```csharp
+    context.TableName.Add(newItem);
+    context.SaveChanges();
+  ```
+
+  ```csharp
+    Category newCategory = new Category() {Name = "Horror", DisplayOrder = 4};
+    context.Categories.Add(newCategory);
+    context.SaveChanges();
+  ```
+
+## Preventing SQL Injection Attack
+
+- If a data is passed directly, Eg: when using Find, it might cause SQL injection attack. This can be avoided by assigning the data to a variable and using it in the Entity FW methods.
